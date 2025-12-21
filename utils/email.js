@@ -5,11 +5,11 @@ const path = require('path');
 
 const transporter = nodemailer.createTransport({
     service: 'Gmail',
-    host: PROCESS.ENV.EMAIL_HOST,
-    port: PROCESS.ENV.EMAIL_PORT,
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
     auth:{
-        user : PROCESS.ENV.EMAIL_USER,
-        pass : PROCESS.ENV.EMAIL_PASS
+        user : process.env.EMAIL_USER,
+        pass : process.env.EMAIL_PASS
     }
 })
 
