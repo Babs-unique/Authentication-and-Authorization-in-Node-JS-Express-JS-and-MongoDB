@@ -8,8 +8,8 @@ router.post('/signUp', signUp);
 router.post('/login' , login);
 router.put('/reset-password' , resetPassword);
 router.post('/forget-password' , forgetPassword);
-router.put ('verify-otp' , verifyOtp);
-router.put('resend-otp' , resendOtp);
+router.put ('/verify-otp' , verifyOtp);
+router.put('/resend-otp' , resendOtp);
 router.get('/all-users' , myAuth , getAllUsers);
 
 

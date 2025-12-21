@@ -1,6 +1,7 @@
 const Auth = require('../models/auth.models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const sendEmail = require('../../utils/email');
 
 
 const signUp = async (req ,res) =>{
@@ -32,6 +33,12 @@ const signUp = async (req ,res) =>{
         });
 
         await newUser.save();
+
+        await sendEmail(
+            email,
+            "Verify your account",
+            `Account Created successfully. Your OTP is ${otp}. It is valid for 10 minutes.`
+        )
         return res.status(201).json({message : "User created Successfully"});
         
     } catch (error) {
@@ -60,7 +67,13 @@ const login = async (req , res) => {
         if(!isPassword){
             return res.status(400).json({message : "Invalid Credentials"});
         }
+        
 
+        await sendEmail(
+            email,
+            "Login Successful",
+            `You have successfully logged in to your account.`
+        )
         return res.status(200).json({message : "Login Successful"});
     } catch (error) {
         console.error("Error in login:", error);
@@ -144,6 +157,11 @@ const resendOtp = async (req, res) =>{
 
         await user.save();
 
+        await sendEmail(
+            email,
+            "OTP Resend",
+            `Your OTP ${otp} is valid for 10 minutes.`
+    )
         return res.status(200).json({message : "OTP resent successfully"});
     } catch (error) {
         console.error("Error in sending Otp:", error);

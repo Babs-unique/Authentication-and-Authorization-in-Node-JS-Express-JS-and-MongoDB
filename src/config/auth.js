@@ -11,7 +11,7 @@ const myAuth = async(req ,res ,next) =>{
     const token = header.split(' ')[1];
 
     try {
-        const decoded = jwt.verify(token , process.env.JWT_SECRET);
+        const decoded = await jwt.verify(token , process.env.JWT_SECRET);
         next();
     } catch (error) {
         console.error("Authentication error:", error);
