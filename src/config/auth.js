@@ -9,6 +9,7 @@ const myAuth = async(req ,res ,next) =>{
     }
 
     const token = header.split(' ')[1];
+    req.use
 
     try {
         const decoded = await jwt.verify(token , process.env.JWT_SECRET);
