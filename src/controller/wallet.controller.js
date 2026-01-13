@@ -33,7 +33,24 @@ const createWallet = async (req, res) => {
     }
 }
 
+const getAllWallets = async (req , res) => {
+    try {
+        const {userId} = req.user;
+        if(!userId){
+            return res.status(400).json({message : "User not found"});
+        }
+        const wallets = await Wallet.find().populate(
+            'userId' 
+            , 'email');
+        return res.status(200).json({wallets});
+    } catch (error) {
+        console.error("Error in getAllWallets:", error);
+        return res.status(500).json({message : "Internal Server Error"});
+    }
+}
+
 
 module.exports = {
-    createWallet
+    createWallet,
+    getAllWallets
 }

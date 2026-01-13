@@ -33,6 +33,10 @@ const authSchema = new mongoose.Schema({
         enum : ['user' , 'admin'], 
         type : String,
         default : 'user'
+    },
+    profileImage : { 
+        type : String , 
+        default : null
     }
 },
         {versionKey: false,

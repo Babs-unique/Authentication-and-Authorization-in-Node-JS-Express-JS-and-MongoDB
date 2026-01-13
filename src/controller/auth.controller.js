@@ -2,7 +2,7 @@ const Auth = require('../models/auth.models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sendEmail = require('../../utils/email');
-
+const cloudinary = require('cloudinary').v2;
 
 const signUp = async (req ,res) =>{
     const {email , password , name} = req.body;
@@ -184,6 +184,34 @@ const getAllUsers = async (req , res) => {
         return res.status(500).json({message : "Internal Server Error"});
     }
 
+}
+const uploadImage = async (req, res) => {
+    const { userId} = req.user;
+    if(!userId){
+        return res.status(400).json({message : "User not logged in"});
+    }
+    try {
+        if(!req.file){
+            return res.status(400).json({message : "No file uploaded"});
+        }
+        const user = await Auth.find(userId);
+        if(!user){
+            return res.status(400).json({message : "User not found"});
+        }
+
+        const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+            folder: 'user_profiles',
+            public_id: `user_${userId}`,
+        })
+
+        user.profileImage = uploadResult.secure_url;
+
+        await user.save()
+        return res.status(200) .json({Message : " Image Uploaded Successfully"});
+    } catch (error) {
+        console.error("Error in uploadImage:", error);
+        return res.status(500).json({message : "Internal Server Error"});
+    }
 }
 
 module.exports = {

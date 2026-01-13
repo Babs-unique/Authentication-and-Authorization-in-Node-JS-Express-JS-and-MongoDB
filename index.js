@@ -7,6 +7,7 @@ require('dotenv').config();
 
 
 const routes = require('./src/routes/auth.route');
+const wallets = require('./src/routes/wallet.route');
 const PORT  = process.env.PORT || 3000;
 
 
@@ -23,6 +24,7 @@ app.get('/' , (req , res) =>{
 })
 
 app.use('/api/users', routes);
+app.use('/api/wallets', wallets);
 
 
 
