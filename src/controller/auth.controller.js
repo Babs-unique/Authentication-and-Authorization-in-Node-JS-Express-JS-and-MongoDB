@@ -221,5 +221,6 @@ module.exports = {
     resetPassword,
     verifyOtp,
     resendOtp,
-    getAllUsers
+    getAllUsers,
+    uploadImage
 }
