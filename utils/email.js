@@ -3,6 +3,7 @@ const ejs  = require('ejs');
 const path = require('path');
 
 
+
 const transporter = nodemailer.createTransport({
     service: 'Gmail',
     host: process.env.EMAIL_HOST,
@@ -14,21 +15,27 @@ const transporter = nodemailer.createTransport({
 })
 
 
-const sendEmail = async (to, subject,text) =>{
+const sendEmail = async (to, subject, text) => {
+    try {
+        const templatePath = path.resolve(__dirname, '..', 'views', 'emailTemplate.ejs');
+        const html = await ejs.renderFile(templatePath, {
+            title: subject,
+            message: text,
+        });
 
-    const html = await ejs.renderFile(path.join(__dirname,'../views/emailTemplate.ejs'), 
-    {
-        title : subject,
-        message : text
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to,
+            subject,
+            text,
+            html,
+        };
+
+        await transporter.sendMail(mailOptions);
+    } catch (err) {
+        console.error('Error in sendEmail:', err);
+        throw err;
     }
-    );
-    const mailOptions = {
-        from : PROCESS.ENV.EMAIL_USER,
-        to,
-        subject,
-        text
-    }
-    await transporter.sendMail(mailOptions);
 }
 
 

@@ -16,9 +16,6 @@ const signUp = async (req ,res) =>{
         if(existingUser){
             return res.status(400).json({message : "User already exists"});
         }
-
-        const token  = jwt.sign({userId : Auth._id} , process.env.JWT_SECRET , 
-        {expiresIn : '1h'});
         const hashedPassword = await bcrypt.hash(password , 10);
 
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -68,13 +65,14 @@ const login = async (req , res) => {
             return res.status(400).json({message : "Invalid Credentials"});
         }
         
-
+        const token = jwt.sign({userId : Auth._id} , process.env.JWT_SECRET , 
+        {expiresIn : '1h'});
         await sendEmail(
             email,
             "Login Successful",
             `You have successfully logged in to your account.`
         )
-        return res.status(200).json({message : "Login Successful"});
+        return res.status(200).json({message : "Login Successful",token});
     } catch (error) {
         console.error("Error in login:", error);
         return res.status(500).json({message : "Internal Server Error"});
