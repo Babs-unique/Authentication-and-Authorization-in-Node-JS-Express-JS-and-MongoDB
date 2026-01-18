@@ -12,6 +12,6 @@ walletRouter.post('/create-wallet' ,myAuth , createWallet);
 walletRouter.get('/all-wallets' , myAuth , getAllWallets);
 walletRouter.post('/transfer-funds' , myAuth , transferFunds);
 walletRouter.post('/flutterwave-payment' , myAuth , redirectUrl);
-walletRouter.get('/paystack-payment' , myAuth, paystackInitiatePayment );
+walletRouter.post('/paystack-payment' , myAuth, paystackInitiatePayment );
 
 module.exports = walletRouter;

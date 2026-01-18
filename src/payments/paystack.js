@@ -63,7 +63,35 @@ const paystackInitiatePayment = async (req, res) => {
         return res.status(500).json({message : "Internal Server Error"});
     }
 }
+const paystackVerifyPayment = async (req, res) => {
+    const { reference } = req.query;
+    if(!reference){
+        return res.status(400).json({message: "Reference is required"});
+    }
+    try{
+        const response = await axios.get(
+            `https://api.paystack.co/transaction/verify/${reference}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+                    "Content-Type": "application/json",
+                }
+            }
+        )
+        const {data} = response.data;
+        if(data.status === "success"){
+            return res.status(200).json({
+                message: "Payment verified successfully",
+            })
+        }else{
+            return res.status(400).json({
+                message: "Payment verification failed"
+            })
+        }
+    }catch (error) {
+        console.error("Error in paystackVerifyPayment:", error);
+        return res.status(500).json({message : "Internal Server Error"});
+    }
+}
 
-
-
-module.exports = { paystackInitiatePayment };
+module.exports = { paystackInitiatePayment, paystackVerifyPayment };

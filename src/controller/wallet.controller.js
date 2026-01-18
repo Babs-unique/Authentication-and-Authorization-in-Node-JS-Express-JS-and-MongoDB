@@ -3,18 +3,18 @@ const Transaction = require('../models/transactions.models');
 
 
 const createWallet = async (req, res) => {
-    try {
-        const {userId} = req.user;
-        const {phoneNumber, currency} = req.body;
-        if(!userId){
+    const {userId} = req.user;
+    if(!userId){
             return res.status(400).json({message : "User not found"});
         }
+        const {phoneNumber, currency} = req.body;
+        if(!phoneNumber || !currency){
+            return res.status(400).json({message : "All fields are required"});
+        }
+    try {
         const existingWallet = await Wallet.findOne({userId});
         if(!existingWallet){
             return res.status(400).json({message : "Wallet already exists for this user"});
-        }
-        if(!phoneNumber || !currency){
-            return res.status(400).json({message : "All fields are required"});
         }
             const formattedPhoneNumber = phoneNumber.replace(/^(\+234|0)/, '');
             const newWallet = new Wallet({
