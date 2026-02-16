@@ -76,7 +76,9 @@ const transferFunds = async (req , res) => {
             return res.status(400).json({Message: "Insufficient funds"});
         }
         const debitWallet = await Wallet.findOneAndUpdate(
-            {accountNumber : accountFrom},
+            {accountNumber : accountFrom,
+                balance : {$gte : amount}
+            },
             {$inc : {balance : -amount}},
             {new : true}
         )

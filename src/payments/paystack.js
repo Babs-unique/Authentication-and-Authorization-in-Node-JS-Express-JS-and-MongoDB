@@ -93,5 +93,69 @@ const paystackVerifyPayment = async (req, res) => {
         return res.status(500).json({message : "Internal Server Error"});
     }
 }
+const paystackWebhook = async (req, res) => {
+  try {
+    const crypto = require("crypto");
+    const secret = process.env.PAYSTACK_SECRET_KEY;
 
-module.exports = { paystackInitiatePayment, paystackVerifyPayment };
+    // Verify webhook signature
+    const hash = crypto
+      .createHmac("sha512", secret)
+      .update(JSON.stringify(req.body))
+      .digest("hex");
+
+    if (hash !== req.headers["x-paystack-signature"]) {
+      console.log("Invalid Paystack webhook signature");
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const event = req.body;
+
+    // Handle charge.success event
+    if (event.event === "charge.success") {
+      const { reference, amount, metadata } = event.data;
+
+      // Extract userId from reference or metadata
+      let userId;
+      if (metadata?.userId) {
+        userId = metadata.userId;
+      } else {
+        const refParts = reference.split("-");
+        userId = refParts[refParts.length - 1];
+      }
+
+      // Convert amount from kobo to main currency
+      const amountInNaira = amount / 100;
+
+      // Find user's wallet and credit it
+      const wallet = await Wallet.findOne({ userId: userId });
+
+      if (wallet) {
+        await Wallet.findOneAndUpdate(
+          { userId: userId },
+          { $inc: { balance: amountInNaira } },
+          { new: true }
+        );
+
+        const user = await User.findById(userId);
+        if (user) {
+          console.log(`Wallet funded via Paystack webhook for user: ${user.email}, Amount: ${amountInNaira} NGN`);
+        }
+
+        return res.status(200).json({ message: "Wallet funded successfully" });
+      } else {
+        console.error("Wallet not found for userId:", userId);
+        return res.status(404).json({ message: "Wallet not found" });
+      }
+    }
+
+    // Acknowledge other events
+    return res.status(200).json({ message: "Webhook received" });
+  } catch (e) {
+    console.error("Paystack webhook error:", e);
+    return res.status(500).json({ message: "Webhook processing failed" });
+  }
+};
+
+
+module.exports = { paystackInitiatePayment, paystackVerifyPayment, paystackWebhook };
